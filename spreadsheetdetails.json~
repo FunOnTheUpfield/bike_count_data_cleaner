@@ -26,55 +26,22 @@
                          "primary_road"		:	{ "row" : 5,	"col" : 3 }, 
                          "secondary_road"	:	{ "row" : 5,	"col" : 12} 
 				},
+
                "count_detail_row"	:
                     {	"most_recent"		:	{ "start_row":  92 },
                          "secondmost_recent"	:	{ "start_row": 124 },
                          "thirdmost_recent"	:	{ "start_row": 156 },
                          "forthmost_recent"	:	{ "start_row": 188 },
                          "fifthmost_recent"	:	{ "start_row": 219 },
-                         "sixthmost_recent"	:	{ "start_row": 253 },
+                         "sixthmost_recent"	:	{ "start_row": 253 }
                     },
                "count_details_cells":
                     {    "survey_year"		:	{ "row": 0,    "col": 13 },
                          "survey_date"		:	{ "row": 0,    "col": 2  },
                          "bin_duration"		:	{ "row": 1,    "col": 10 },
-                         "gender_split"		:	{ "row": 1,    "col": 14 },
-                    },
-               "count_detail_attributes":
-                    {    "counting"		:	{ "value": "bicycles"}
-                    },
-               "movement_bin_row_range": 
-                    {    "seven_am_to_nine_am"	:	{ "start"	: 5 , "finish"	: 12 }
-                    },
-               "movement_bin_times": 
-                    {    "bin_start"		:	{ "col" :  0 }
-                    },
-               "movement_bin_columns":
-                    {    "male_north_to_west"   : { "col" :  2 },
-					"female_north_to_west" : { "col" :  3 },
-					"male_north_to_south"  : { "col" :  4 },
-					"female_north_to_south": { "col" :  5 },
-					"male_north_to_east"   : { "col" :  6 },
-					"female_north_to_east" : { "col" :  7 },
-					"male_east_to_north"   : { "col" :  8 },
-					"female_east_to_north" : { "col" :  9 },
-					"male_east_to_west"    : { "col" : 10 },
-					"female_east_to_west"  : { "col" : 11 },
-					"male_east_to_south"   : { "col" : 12 },
-					"female_east_to_south" : { "col" : 13 },
-					"male_south_to_east"   : { "col" : 14 },
-					"female_south_to_east" : { "col" : 15 },
-					"male_south_to_north"  : { "col" : 16 },
-					"female_south_to_north": { "col" : 17 },
-					"male_south_to_west"   : { "col" : 18 },
-					"female_south_to_west" : { "col" : 19 },
-					"male_west_to_south"   : { "col" : 20 },
-					"female_west_to_south" : { "col" : 21 },
-					"male_west_to_east"    : { "col" : 22 },
-					"female_west_to_east"  : { "col" : 23 },
-					"male_west_to_north"   : { "col" : 24 },
-					"female_west_to_north" : { "col" : 25 }
-				}
+                         "gender_split"		:	{ "row": 1,    "col": 14 }
+                    }
 		}
+
 }
 

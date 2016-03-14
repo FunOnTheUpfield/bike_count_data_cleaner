@@ -25,7 +25,26 @@
 					"northing"		:	{ "row" : 3,	"col" : 11},
                          "primary_road"		:	{ "row" : 5,	"col" : 3 }, 
                          "secondary_road"	:	{ "row" : 5,	"col" : 12} 
-				}
+				},
+
+               "count_detail_row"	:
+                    {	"most_recent"		:	{ "start_row":  92 },
+                         "secondmost_recent"	:	{ "start_row": 124 },
+                         "thirdmost_recent"	:	{ "start_row": 156 },
+                         "forthmost_recent"	:	{ "start_row": 188 },
+                         "fifthmost_recent"	:	{ "start_row": 219 },
+                         "sixthmost_recent"	:	{ "start_row": 253 }
+                    },
+               "count_details_cells":
+                    {    "survey_year"		:	{ "row": 0,    "col": 13 },
+                         "survey_date"		:	{ "row": 0,    "col": 2  },
+                         "bin_duration"		:	{ "row": 1,    "col": 10 },
+                         "gender_split"		:	{ "row": 1,    "col": 14 }
+                    },
+               "count_detail_attributes":
+                    {    "counting"		:	{ "value": "bicycles"}
+                    }
 		}
+
 }
 
