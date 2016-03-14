@@ -1,0 +1,31 @@
+{
+	"metadata"	:	
+		{
+			"this_filename"		:	"spreadsheetdetails.json",
+			"this_file_description"	:	"where to look to find good values in the excel spreadsheets",
+			"this_file_author"		:	"Simon Stainsby",
+			"this_file_github_user"	:	"FunOnTheUpfield",
+			"this_file_create_date"	:	"14 March 2016",
+			"this_file_last_updated"	:	"14 March 2016"
+		},
+
+	"supertue"	:
+		{
+			"filepath"		:	"../../Work/MorelandBikeCounts/MorningPeak/",
+			"filename"		:	"Traffic Count - Bicycle Count - Bike count - Morning Peak 7am to 9am - Weekday - Super ~ 2016.xlsx",
+			"worksheet_range"	:	{ "start"	:	6,	"finish"	:	100},
+
+               "site_detail_cell"	: 
+                    {    "old_id"			:	{ "row" : 0,	"col" : 2 },
+                         "site_description"	:	{ "row" : 1,	"col" : 2 }, 
+                         "suburb"			:	{ "row" : 2,	"col" : 2 }, 
+                         "dist_from_cbd"	:	{ "row" : 4,	"col" : 2 }, 
+                         "melway_ref"		:	{ "row" : 3,	"col" : 2 },
+					"easting"			:	{ "row" : 3,	"col" : 7 },
+					"northing"		:	{ "row" : 3,	"col" : 11},
+                         "primary_road"		:	{ "row" : 5,	"col" : 3 }, 
+                         "secondary_road"	:	{ "row" : 5,	"col" : 12} 
+				}
+		}
+}
+
