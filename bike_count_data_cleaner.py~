@@ -29,8 +29,8 @@ SITECOLUMNS = [
 	]
 
 COUNTCOLUMNS = [
-	'site_id',
 	'count_id',
+	'site_id',
 	'survey_year',
 	'survey_date',
 	'counting',
@@ -38,14 +38,49 @@ COUNTCOLUMNS = [
 	'gender_split'
 	]
 
+MOVECOLUMNS = [
+          'count_id',
+          'site_id',
+          'bin_start',
+          'male_north_to_south',
+          'male_north_to_east',
+          'male_east_to_north',
+          'male_east_to_west',
+          'male_east_to_south',
+          'male_south_to_east',
+          'male_south_to_north',
+          'male_south_to_west',
+          'male_west_to_south',
+          'male_west_to_east',
+          'male_west_to_north',
+          'male_north_to_west',
+          'female_north_to_south',
+          'female_north_to_east',
+          'female_east_to_north',
+          'female_east_to_west',
+          'female_east_to_south',
+          'female_south_to_east',
+          'female_south_to_north',
+          'female_south_to_west',
+          'female_west_to_south',
+          'female_west_to_east',
+          'female_west_to_north',
+          'female_north_to_west'
+          ]
+
+
 # Open a text files for output
 siteout  = open('../../Work/output/site_description.txt', 'w') 
 siteout.write('site_id | old_id | easting | northing | dist_from_cbd | melway_ref | site_description | suburb |  primary_road | secondary_road')
 siteout.write('\n')
 
 countout = open('../../Work/output/count_details.txt', 'w') 
-countout.write('site_id | count_id | survey_year | survey_date | counting | bin_duration | gender_split')
+countout.write(' count_id | site_id | survey_year | survey_date | counting | bin_duration | gender_split')
 countout.write('\n')
+
+moveout = open('test7moveout.txt', 'w')
+moveout.write(' count_id | site_id | bin_start | male_north_to_south | male_north_to_east | male_east_to_north | male_east_to_west | male_east_to_south | male_south_to_east | male_south_to_north | male_south_to_west | male_west_to_south | male_west_to_east | male_west_to_north | male_north_to_west | female_north_to_south | female_north_to_east | female_east_to_north | female_east_to_west | female_east_to_south | female_south_to_east |female_south_to_north | female_south_to_west | female_west_to_south | female_west_to_east | female_west_to_north | female_north_to_west')
+moveout.write('\n')
 
 
 # function to print output files
@@ -150,4 +185,46 @@ for spreadsheet in excelfiles:
 					# add results to count details file
 					create_output(countdic,  countout,  COUNTCOLUMNS)
 
-print allcounts
+					# Collect move details
+					movedic = {}
+					movedic['site_id']  = countdic['site_id']
+					movedic['count_id'] = countdic['count_id']
+					seven_to_nine_moves = {}
+
+					# Handle Super Tuesday counts with bin_duration of 120 differently.
+					if countdic['bin_duration'] == 120 and countdic['gender_split'] == 'Y':
+						print 'Old super tuesday count, go to summary row'
+						#TODO: Actually do something here
+					else:
+						start 	 = currentsheet['movement_bin_row_range']['seven_am_to_nine_am']['start']
+						finish	 = currentsheet['movement_bin_row_range']['seven_am_to_nine_am']['finish']
+						# TODO Fix hardcoded timerange - no good for upfield study.
+
+						for k in range(start,finish):         
+								row = k + count_details
+								col = currentsheet['movement_bin_times']['bin_start']['col']
+								movedic['bin_start'] = sheet.cell(row,col).value                                        
+								for i in currentsheet['movement_bin_columns']:
+									col = currentsheet['movement_bin_columns'][i]['col']
+									move = sheet.cell(row,col).value
+									try:
+										move = int(move)
+									except:
+										continue
+									movedic[i] = move
+
+									# Convert the bin start time from excel into HH:MM 24hr format
+									try:                    
+										bin_start_time = float(movedic['bin_start']) 
+										preformatted_start_time = xldate_as_tuple(bin_start_time,workbook.datemode)
+										formatted_time = time(*preformatted_start_time[3:5])
+										long_start_time = datetime.combine(formatted_date,formatted_time)                    
+										movedic['bin_start'] = long_start_time
+										seven_to_nine_moves['binstart'] = movedic
+									except:
+										continue
+
+									# add results to count details file
+									create_output(movedic, moveout, MOVECOLUMNS)
+
+						print seven_to_nine_moves
