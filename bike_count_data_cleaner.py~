@@ -12,8 +12,228 @@ from xlrd import open_workbook,xldate_as_tuple
 import re
 from datetime import date,datetime,time
 
-EMPTY_VALUE = "NA"
 
+# Initialise variables
+EMPTY_VALUE = "NA"
+site_id 	= 0
+count_id 	= 0
+allsites 	= {}
+allcounts	= {}
+
+
+# Configuration -  Data Sources
+excelfiles 	= json.load(open('spreadsheetdetails.json'))
+
+# Configuration - Observation summaries
+#TODO Move this to an external configuration file
+summary_calculations = {
+	# All movements
+	"all_movements_at_intersection"	: 	(
+									"male_north_to_west" , "female_north_to_west"
+									"male_north_to_south", "female_north_to_south",
+									"male_north_to_east" , "female_north_to_east",
+									"male_east_to_north" , "female_east_to_north",
+									"male_east_to_west"  , "female_east_to_west",
+									"male_east_to_south" , "female_east_to_south",
+									"male_south_to_east" , "female_south_to_east",
+									"male_south_to_north", "female_south_to_north",
+									"male_south_to_west" , "female_south_to_west",
+									"male_west_to_south" , "female_west_to_south",
+									"male_west_to_east"  , "female_west_to_east",
+									"male_west_to_north" , "female_west_to_north"
+									),
+	# By_gender		
+	"total_female_using_intersection"	: 	(
+									"female_north_to_west" , "female_north_to_south", "female_north_to_east" ,
+									"female_east_to_north" , "female_east_to_west"  , "female_east_to_south" , 
+									"female_south_to_east" , "female_south_to_north", "female_south_to_west" , 
+									"female_west_to_south" , "female_west_to_east"  , "female_west_to_north" ,  
+									),
+
+	"total_male_using_intersection"	: 	(
+									"male_north_to_west" , "male_north_to_south", "male_north_to_east" ,
+									"male_east_to_north" , "male_east_to_west"  , "male_east_to_south" , 
+									"male_south_to_east" , "male_south_to_north", "male_south_to_west" , 
+									"male_west_to_south" , "male_west_to_east"  , "male_west_to_north" ,  
+									),
+	# Use by road segment
+	"all_on_northern_road"			: 	("male_north_to_west" , "female_north_to_west",
+									"male_north_to_south", "female_north_to_south"
+									"male_north_to_east" , "female_north_to_east",
+									"male_east_to_north" , "female_east_to_north",
+									"male_south_to_north", "female_south_to_north",
+									"male_west_to_north" , "female_west_to_north"
+									),
+
+	"all_on_eastern_road"			: 	(
+									"male_east_to_north" , "female_east_to_north", 
+									"male_east_to_west" , "female_east_to_west", 
+									"male_east_to_south" , "female_east_to_south",
+									"male_north_to_east" , "female_north_to_east",
+									"male_south_to_east" , "female_south_to_east",
+									"male_west_to_east"  , "female_west_to_east"
+									),
+	
+	"all_on_southern_road"			: 	(
+									"male_south_to_east" , "female_south_to_east",
+									"male_south_to_north", "female_south_to_north",
+									"male_south_to_west" , "female_south_to_west",
+									"male_north_to_south", "female_north_to_south",
+									"male_east_to_south" , "female_east_to_south",
+									"male_west_to_south" , "female_west_to_south"
+									),
+	
+	"all_on_western_road"			: 	(
+									"male_west_to_south" , "female_west_to_south",
+									"male_west_to_east"  , "female_west_to_east",
+									"male_west_to_north" , "female_west_to_north",
+									"male_north_to_west" , "female_north_to_west",
+									"male_east_to_west"  , "female_east_to_west",
+									"male_south_to_west" , "female_south_to_west"
+									),
+	# Origin of traveller
+	"all_from_north"				: 	(
+									"male_north_to_west" , "female_north_to_west",
+									"male_north_to_south", "female_north_to_south"
+									"male_north_to_east" , "female_north_to_east"
+									),
+								
+	"all_from_east"				: 	(
+									"male_east_to_north" , "female_east_to_north", 
+									"male_east_to_west" , "female_east_to_west", 
+									"male_east_to_south" , "female_east_to_south"
+									),
+								
+	"all_from_south"				: 	(
+									"male_south_to_east" , "female_south_to_east",
+									"male_south_to_north", "female_south_to_north",
+									"male_south_to_west" , "female_south_to_west"
+									),
+								
+	"all_from_west"				: 	(
+									"male_west_to_south" , "female_west_to_south",
+									"male_west_to_east"  , "female_west_to_east",
+									"male_west_to_north" , "female_west_to_north"
+									),
+	# Destination of traveller
+	"all_to_north"					: 	(
+									"male_east_to_north" , "female_east_to_north",
+									"male_south_to_north", "female_south_to_north",
+									"male_west_to_north" , "female_west_to_north"
+									),
+
+	"all_to_east"					: 	(
+									"male_north_to_east" , "female_north_to_east",
+									"male_south_to_east" , "female_south_to_east",
+									"male_west_to_east"  , "female_west_to_east"
+									),
+								
+	"all_to_south"					: 	(
+									"male_north_to_south", "female_north_to_south",
+									"male_east_to_south" , "female_east_to_south",
+									"male_west_to_south" , "female_west_to_south"
+									),
+								
+	"all_to_west"					: 	(
+									"male_north_to_west" , "female_north_to_west",
+									"male_east_to_west"  , "female_east_to_west",
+									"male_south_to_west" , "female_south_to_west"
+									),
+	# Female travellers by road segment
+	"female_on_northern_road"		: 	("female_north_to_west", "female_north_to_south","female_north_to_east",
+									"female_east_to_north", "female_south_to_north", "female_west_to_north"
+									),
+		
+	"female_on_eastern_road"			: 	("female_east_to_north",  "female_east_to_west", "female_east_to_south",
+									"female_north_to_east","female_south_to_east","female_west_to_east"
+									),
+
+	"female_on_southern_road"		: 	("female_south_to_east","female_south_to_north", "female_south_to_west",
+									"female_north_to_south", "female_east_to_south", "female_west_to_south"
+									),
+
+	"female_on_western_road"			: 	("female_west_to_north","female_west_to_east", "female_west_to_south", 
+									"female_north_to_west","female_east_to_west", "female_south_to_west"
+									),
+
+	# Origin of Female travellers
+	"female_from_north"				: 	("female_north_to_west", "female_north_to_south", "female_north_to_east"),
+	
+	"female_from_east"				: 	("female_east_to_north", "female_east_to_west" , "female_east_to_south"),
+
+	"female_from_south"				: 	("female_south_to_east","female_south_to_north","female_south_to_west"), 
+									
+	"female_from_west"				: 	("female_west_to_south", "female_west_to_east", "female_west_to_north"),
+
+	# Destination of female travellers
+									
+	"female_to_north"				: 	("female_east_to_north","female_south_to_north", "female_west_to_north"),
+									
+	"female_to_east"				: 	("female_north_to_east","female_south_to_east", "female_west_to_east"),
+
+	"female_to_south"				: 	("female_north_to_south", "female_east_to_south", "female_west_to_south"),
+									
+	"female_to_west"				: 	("female_north_to_west", "female_east_to_west", "female_south_to_west"),
+
+	# Male travellers by road segment
+	"male_on_northern_road"			: 	("male_north_to_west", "male_north_to_south","male_north_to_east",
+									"male_east_to_north", "male_south_to_north", "male_west_to_north"
+									),
+		
+	"male_on_eastern_road"			: 	("male_east_to_north",  "male_east_to_west", "male_east_to_south",
+									"male_north_to_east","male_south_to_east","male_west_to_east"	
+									),
+
+	"male_on_southern_road"			: 	("male_south_to_east","male_south_to_north", "male_south_to_west",
+									"male_north_to_south", "male_east_to_south", "male_west_to_south"
+									),
+
+	"male_on_western_road"			: 	("male_west_to_north","male_west_to_east", "male_west_to_south", 
+									"male_north_to_west","male_east_to_west", "male_south_to_west"
+									),
+	# Origin of male travellers
+	"male_from_north"			 	: 	("male_north_to_west", "male_north_to_south", "male_north_to_east"),
+
+	"male_from_east"				: 	("male_east_to_north", "male_east_to_west" , "male_east_to_south"),
+
+	"male_from_south"				: 	("male_south_to_east","male_south_to_north","male_south_to_west"), 
+									
+	"male_from_west"				: 	("male_west_to_south", "male_west_to_east", "male_west_to_north"),
+									
+	"male_to_north"				: 	("male_east_to_north","male_south_to_north", "male_west_to_north"),
+									
+	# Destination of male travellers
+	"male_to_east"					: 	("male_north_to_east","male_south_to_east", "male_west_to_east"),
+
+	"male_to_south"				: 	("male_north_to_south", "male_east_to_south", "male_west_to_south"),
+									
+	"male_to_west"					: 	("male_north_to_west", "male_east_to_west", "male_south_to_west"),
+
+	# Turning movements - without gender split
+	"all_from_north_to_west"			: 	("male_north_to_west" , "female_north_to_west"),
+	"all_from_north_to_south"		: 	("male_north_to_south", "female_north_to_south"),
+	"all_from_north_to_east"			: 	("male_north_to_east" , "female_north_to_east"),
+	
+	"all_from_east_to_north"			: 	("male_east_to_north" , "female_east_to_north"),
+	"all_from_east_to_west"			: 	("male_east_to_west"  , "female_east_to_west"),
+	"all_from_east_to_south"			: 	("male_east_to_south" , "female_east_to_south"),
+		
+	"all_from_south_to_east"			: 	("male_south_to_east" , "female_south_to_east"),
+	"all_from_south_to_north"		: 	("male_south_to_north", "female_south_to_north"),
+	"all_from_south_to_west"			: 	("male_south_to_west" , "female_south_to_west"),
+		
+	"all_from_west_to_south"			: 	("male_west_to_south" , "female_west_to_south"),
+	"all_from_west_to_east"			: 	("male_west_to_east"  , "female_west_to_east"),
+	"all_from_west_to_north"			: 	("male_west_to_north" , "female_west_to_north"),
+	
+}
+
+
+
+
+
+
+# Configuration - Output text file columns 
 # TODO: Move these constants to an conf or ini file
 SITECOLUMNS = [
 	'site_id', 
@@ -79,74 +299,78 @@ BINTOTALS = [
 			# By_gender
 		'total_male_using_intersection',
 		'total_female_using_intersection',
-
-			# Total Traffic volume on road segment
+			# Use by road segment
 		'all_on_northern_road',
 		'all_on_eastern_road',
 		'all_on_southern_road',
 		'all_on_western_road',
-			# Male Traffic volume on road segment
-		'male_on_northern_road',
-		'male_on_eastern_road',
-		'male_on_southern_road',
-		'male_on_western_road'
-			# Female Traffic volume on road segment
-		'female_on_northern_road',
-		'female_on_eastern_road',
-		'female_on_southern_road',
-		'female_on_western_road'
-
-			# All From
+			# Origin of traveller 
 		'all_from_north',
 		'all_from_east',
 		'all_from_south',
 		'all_from_west',
-			# Male From
-		'male_from_north',
-		'male_from_east',
-		'male_from_south',
-		'male_from_west',
-			# Female From
-		'female_from_north',
-		'female_from_east',
-		'female_from_south',
-		'female_from_west',
-
-			# All Heading to
+			# Destination of traveller
 		'all_to_north',
 		'all_to_east',
 		'all_to_south',
 		'all_to_west',
-			# Male Heading to
-		'male_to_north',
-		'male_to_east',
-		'male_to_south',
-		'male_to_west',
-
-			# Female Heading to
+			# Female travellers by road segment
+		'female_on_northern_road',
+		'female_on_eastern_road',
+		'female_on_southern_road',
+		'female_on_western_road'
+			# Origin of female travellers
+		'female_from_north',
+		'female_from_east',
+		'female_from_south',
+		'female_from_west',
+			# Destination of female travellers
 		'female_to_north',
 		'female_to_east',
 		'female_to_south',
 		'female_to_west',
-
-			# All From north
+			# Male travellers by road segment
+		'male_on_northern_road',
+		'male_on_eastern_road',
+		'male_on_southern_road',
+		'male_on_western_road'
+			# Origin of male travellers
+		'male_from_north',
+		'male_from_east',
+		'male_from_south',
+		'male_from_west',
+			# Destination of male travellers
+		'male_to_north',
+		'male_to_east',
+		'male_to_south',
+		'male_to_west',
+			# Turning movements - without gender split
 		'all_from_north_to_west',
 		'all_from_north_to_south',
 		'all_from_north_to_east',
-			# All From east
 		'all_from_east_to_north',
 		'all_from_east_to_west',
 		'all_from_east_to_south',
-			# All From south
 		'all_from_south_to_east',
 		'all_from_south_to_north',
 		'all_from_south_to_west',
-			# All From west,
 		'all_from_west_to_south',
 		'all_from_west_to_east',
 		'all_from_west_to_north',
-
 		]
+
+# function to print output files
+def create_output(d,output_file,OUTPUTCOLUMNS):          
+     dicvalues = []
+     if d != {}:
+          for col in OUTPUTCOLUMNS:
+               if col not in d:
+                    dicvalues.append(EMPTY_VALUE)
+               else:
+                    dicvalues.append(str(d[col]))
+          output_file.write("|".join(dicvalues))
+          output_file.write("\n") 
+
 
 # Open a text files for output
 siteout  = open('../../Work/output/site_description.txt', 'w') 
@@ -165,30 +389,7 @@ bintotalout = open('../../Work/output/bike_movement_summary1.txt', 'w')
 bintotalout.write('count_id | site_id | bin_start | bin_duration | all_movements_at_intersection | total_male_using_intersection | total_female_using_intersection | all_on_northern_road | all_on_eastern_road | all_on_southern_road | all_on_western_road | male_on_northern_road | male_on_eastern_road | male_on_southern_road | male_on_western_road | female_on_northern_road | female_on_eastern_road | female_on_southern_road | female_on_western_road | all_from_north | all_from_east | all_from_south | all_from_west | male_from_north | male_from_east | male_from_south | male_from_west | female_from_north | female_from_east | female_from_south | female_from_west | all_to_north | all_to_east | all_to_south | all_to_west | male_to_north | male_to_east | male_to_south | male_to_west | female_to_north | female_to_east | female_to_south | female_to_west | all_from_north_to_west | all_from_north_to_south | all_from_north_to_east | all_from_east_to_north | all_from_east_to_west | all_from_east_to_south | all_from_south_to_east | all_from_south_to_north | all_from_south_to_west | all_from_west_to_south | all_from_west_to_east | all_from_west_to_north')
 bintotalout.write('\n')
 
-# function to print output files
-def create_output(d,output_file,OUTPUTCOLUMNS):          
-     dicvalues = []
-     if d != {}:
-          for col in OUTPUTCOLUMNS:
-               if col not in d:
-                    dicvalues.append(EMPTY_VALUE)
-               else:
-                    dicvalues.append(str(d[col]))
-          output_file.write("|".join(dicvalues))
-          output_file.write("\n") 
-
-
-
-# Open json file that describe where to find the values we are interested in:
-excelfiles 	= json.load(open('spreadsheetdetails.json'))
-#summary_calculations = json.load(open('summary_calculations.json'))
-
-
-site_id 	= 0
-count_id 	= 0
-allsites 	= {}
-allcounts	= {}
-
+# Iterate through excel data sources scraping cells for interesting values - then summarise.
 for spreadsheet in excelfiles:
 	if spreadsheet != "metadata":
 		sourcefile = excelfiles[spreadsheet]["filepath"] + excelfiles[spreadsheet]["filename"]
@@ -322,202 +523,6 @@ for spreadsheet in excelfiles:
 								bin_totals['bin_start']		= movedic['bin_start']
 								bin_totals['bin_duration']	= movedic['bin_duration']
 
-								#TODO Move this to an external configuration file
-								summary_calculations = {
-									"all_from_north_to_west"		: 	("male_north_to_west" , "female_north_to_west"),
-									"all_from_north_to_south"	: 	("male_north_to_south", "female_north_to_south"),
-									"all_from_north_to_east"		: 	("male_north_to_east" , "female_north_to_east"),
-									
-									"all_from_east_to_north"		: 	("male_east_to_north" , "female_east_to_north"),
-									"all_from_east_to_west"		: 	("male_east_to_west"  , "female_east_to_west"),
-									"all_from_east_to_south"		: 	("male_east_to_south" , "female_east_to_south"),
-									
-									"all_from_south_to_east"		: 	("male_south_to_east" , "female_south_to_east"),
-									"all_from_south_to_north"	: 	("male_south_to_north", "female_south_to_north"),
-									"all_from_south_to_west"		: 	("male_south_to_west" , "female_south_to_west"),
-									
-									"all_from_west_to_south"		: 	("male_west_to_south" , "female_west_to_south"),
-									"all_from_west_to_east"		: 	("male_west_to_east"  , "female_west_to_east"),
-									"all_from_west_to_north"		: 	("male_west_to_north" , "female_west_to_north"),
-
-									"all_from_north"			: 	(
-																"male_north_to_west" , "female_north_to_west",
-																"male_north_to_south", "female_north_to_south"
-																"male_north_to_east" , "female_north_to_east"
-																),
-								
-									"all_from_east"			: 	(
-																"male_east_to_north" , "female_east_to_north", 
-																"male_east_to_west" , "female_east_to_west", 
-																"male_east_to_south" , "female_east_to_south"
-																),
-								
-									"all_from_south"			: 	(
-																"male_south_to_east" , "female_south_to_east",
-																"male_south_to_north", "female_south_to_north",
-																"male_south_to_west" , "female_south_to_west"
-																),
-								
-									"all_from_west"			: 	(
-																"male_west_to_south" , "female_west_to_south",
-																"male_west_to_east"  , "female_west_to_east",
-																"male_west_to_north" , "female_west_to_north"
-																),
-
-									"all_to_north"				: 	(
-																"male_east_to_north" , "female_east_to_north",
-																"male_south_to_north", "female_south_to_north",
-																"male_west_to_north" , "female_west_to_north"
-																),
-
-									"all_to_east"				: 	(
-																"male_north_to_east" , "female_north_to_east",
-																"male_south_to_east" , "female_south_to_east",
-																"male_west_to_east"  , "female_west_to_east"
-																),
-								
-									"all_to_south"				: 	(
-																"male_north_to_south", "female_north_to_south",
-																"male_east_to_south" , "female_east_to_south",
-																"male_west_to_south" , "female_west_to_south"
-																),
-								
-									"all_to_west"				: 	(
-																"male_north_to_west" , "female_north_to_west",
-																"male_east_to_west"  , "female_east_to_west",
-																"male_south_to_west" , "female_south_to_west"
-																),
-
-									"all_on_northern_road"		: 	("male_north_to_west" , "female_north_to_west",
-																"male_north_to_south", "female_north_to_south"
-																"male_north_to_east" , "female_north_to_east",
-																"male_east_to_north" , "female_east_to_north",
-																"male_south_to_north", "female_south_to_north",
-																"male_west_to_north" , "female_west_to_north"
-																),
-
-									"all_on_eastern_road"		: 	(
-																"male_east_to_north" , "female_east_to_north", 
-																"male_east_to_west" , "female_east_to_west", 
-																"male_east_to_south" , "female_east_to_south",
-																"male_north_to_east" , "female_north_to_east",
-																"male_south_to_east" , "female_south_to_east",
-																"male_west_to_east"  , "female_west_to_east"
-																),
-								
-									"all_on_southern_road"		: 	(																
-																"male_south_to_east" , "female_south_to_east",
-																"male_south_to_north", "female_south_to_north",
-																"male_south_to_west" , "female_south_to_west",
-																"male_north_to_south", "female_north_to_south",
-																"male_east_to_south" , "female_east_to_south",
-																"male_west_to_south" , "female_west_to_south"
-																),
-								
-									"all_on_western_road"		: 	(
-																"male_west_to_south" , "female_west_to_south",
-																"male_west_to_east"  , "female_west_to_east",
-																"male_west_to_north" , "female_west_to_north",
-																"male_north_to_west" , "female_north_to_west",
-																"male_east_to_west"  , "female_east_to_west",
-																"male_south_to_west" , "female_south_to_west"
-																),
-	
-									"male_from_north"			: 	("male_north_to_west", "male_north_to_south", "male_north_to_east"),
-								
-									"male_from_east"			: 	("male_east_to_north", "male_east_to_west" , "male_east_to_south"),
-
-									"male_from_south"			: 	("male_south_to_east","male_south_to_north","male_south_to_west"), 
-																
-									"male_from_west"			: 	("male_west_to_south", "male_west_to_east", "male_west_to_north"),
-																
-									"male_to_north"			: 	("male_east_to_north","male_south_to_north", "male_west_to_north"),
-																
-									"male_to_east"				: 	("male_north_to_east","male_south_to_east", "male_west_to_east"),
-
-									"male_to_south"			: 	("male_north_to_south", "male_east_to_south", "male_west_to_south"),
-																
-									"male_to_west"				: 	("male_north_to_west", "male_east_to_west", "male_south_to_west"),
-
-									"male_on_northern_road"		: 	("male_north_to_west", "male_north_to_south","male_north_to_east",
-																"male_east_to_north", "male_south_to_north", "male_west_to_north"
-																),
-									
-									"male_on_eastern_road"		: 	("male_east_to_north",  "male_east_to_west", "male_east_to_south",
-																"male_north_to_east","male_south_to_east","male_west_to_east"								
-																),
-
-									"male_on_southern_road"		: 	("male_south_to_east","male_south_to_north", "male_south_to_west",
-																"male_north_to_south", "male_east_to_south", "male_west_to_south"
-																),
-
-									"male_on_western_road"		: 	("male_west_to_north" , "male_west_to_east" , "male_west_to_south", 
-																 "male_north_to_west","male_east_to_west", "male_south_to_west"       
-																),
-		
-									"female_from_north"			: 	("female_north_to_west", "female_north_to_south", "female_north_to_east"),
-								
-									"female_from_east"			: 	("female_east_to_north", "female_east_to_west" , "female_east_to_south"),
-
-									"female_from_south"			: 	("female_south_to_east","female_south_to_north","female_south_to_west"), 
-																
-									"female_from_west"			: 	("female_west_to_south", "female_west_to_east", "female_west_to_north"),
-																
-									"female_to_north"			: 	("female_east_to_north","female_south_to_north", "female_west_to_north"),
-																
-									"female_to_east"			: 	("female_north_to_east","female_south_to_east", "female_west_to_east"),
-
-									"female_to_south"			: 	("female_north_to_south", "female_east_to_south", "female_west_to_south"),
-																
-									"female_to_west"			: 	("female_north_to_west", "female_east_to_west", "female_south_to_west"),
-
-									"female_on_northern_road"	: 	("female_north_to_west", "female_north_to_south","female_north_to_east",
-																"female_east_to_north", "female_south_to_north", "female_west_to_north"
-																),
-									
-									"female_on_eastern_road"		: 	("female_east_to_north",  "female_east_to_west", "female_east_to_south",
-																"female_north_to_east","female_south_to_east","female_west_to_east"								
-																),
-
-									"female_on_southern_road"	: 	("female_south_to_east","female_south_to_north", "female_south_to_west",
-																"female_north_to_south", "female_east_to_south", "female_west_to_south"
-																),
-
-									"female_on_western_road"		: 	("female_west_to_north","female_west_to_east", "female_west_to_south", 
-																"female_north_to_west","female_east_to_west", "female_south_to_west"
-																),
-
-									"total_male_using_intersection"	: 	(
-																"male_north_to_west" , "male_north_to_south", "male_north_to_east" ,
-																"male_east_to_north" , "male_east_to_west"  , "male_east_to_south" , 
-																"male_south_to_east" , "male_south_to_north", "male_south_to_west" , 
-																"male_west_to_south" , "male_west_to_east"  , "male_west_to_north" ,  
-																	),
-										
-									"total_female_using_intersection"	: 	(
-																"female_north_to_west" , "female_north_to_south", "female_north_to_east" ,
-																"female_east_to_north" , "female_east_to_west"  , "female_east_to_south" , 
-																"female_south_to_east" , "female_south_to_north", "female_south_to_west" , 
-																"female_west_to_south" , "female_west_to_east"  , "female_west_to_north" ,  
-																	),
-								
-									"all_movements_at_intersection"	: 	(
-																"male_north_to_west" , "female_north_to_west"
-																"male_north_to_south", "female_north_to_south",
-																"male_north_to_east" , "female_north_to_east",
-																"male_east_to_north" , "female_east_to_north",
-																"male_east_to_west"  , "female_east_to_west",
-																"male_east_to_south" , "female_east_to_south",
-																"male_south_to_east" , "female_south_to_east",
-																"male_south_to_north", "female_south_to_north",
-																"male_south_to_west" , "female_south_to_west",
-																"male_west_to_south" , "female_west_to_south",
-																"male_west_to_east"  , "female_west_to_east",
-																"male_west_to_north" , "female_west_to_north"
-
-																	)
-
-									}
 								for summarise in summary_calculations:
 									fieldsum = 0
 									for i in range(0,len(summary_calculations[summarise])):
