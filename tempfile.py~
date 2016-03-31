@@ -1,0 +1,62 @@
+# Tempfile.py
+# A place to put junk
+
+
+
+
+								# Tests
+								try:
+									foo = movedic['male_north_to_west'] + movedic['female_north_to_west']
+								except:
+									foo = ""
+
+								bin_totals['north_to_west'] 	= foo 
+								
+
+								try:
+									baa = movedic['female_north_to_west'] + movedic['female_north_to_south'] + movedic['female_north_to_east'] 
+								except:
+									baa = ""
+
+
+
+
+								#bin_totals['male_riders']	=	movedic['male_north_to_west'] + movedic['male_north_to_south'] + movedic['male_north_to_east'] + movedic['male_east_to_north'] + movedic['male_east_to_west'] + movedic['male_east_to_south'] + movedic['male_south_to_east'] + movedic['male_south_to_north'] + movedic['male_south_to_west'] + movedic['male_west_to_south'] + movedic['male_west_to_east'] + movedic['male_west_to_north']
+								#bin_totals('female_riders') =	movedic('female_north_to_west' + 'female_north_to_south'+ 'female_north_to_east'+ 'female_east_to_north' + 'female_east_to_west' + 'female_east_to_south' + 'female_south_to_east'+ 'female_south_to_north' + 'female_south_to_west' + 'female_west_to_south' + 'female_west_to_east' + 'female_west_to_north')
+ 
+								#bin_totals('all_riders') = bin_totals('male_riders') + bin_totals('female_riders')
+
+								#bin_totals('north_to_west') 	= movedic('male_north_to_west') + movedic('female_north_to_west')
+								#bin_totals('north_to_south') 	= movedic('male_north_to_south') + movedic('female_north_to_south')
+								#bin_totals('north_to_east') 	= movedic('male_north_to_east') + movedic('female_north_to_east')
+
+								#bin_totals('east_to_north') 	= movedic('male_east_to_north') + movedic('female_east_to_north')
+								#bin_totals('east_to_west') 	= movedic('male_east_to_west') + movedic('female_east_to_west')
+								#bin_totals('east_to_south') 	= movedic('male_east_to_south') + movedic('female_east_to_south')
+
+								#bin_totals('south_to_east') 	= movedic('male_south_to_east') + movedic('female_south_to_east')
+								#bin_totals('south_to_north') 	= movedic('male_south_to_north') + movedic('female_south_to_north')
+								#bin_totals('south_to_west') 	= movedic('male_south_to_west') + movedic('female_south_to_west')
+
+								#bin_totals('west_to_south') 	= movedic('male_west_to_south') + movedic('female_west_to_south')
+								#bin_totals('west_to_east') 	= movedic('male_west_to_east') + movedic('female_west_to_east')
+								#bin_totals('west_to_north') 	= movedic('male_west_to_north') + movedic('female_west_to_north')
+
+
+
+								#bin_totals('from_east') 	= bin_totals('east_to_north') + bin_totals('east_to_west') + bin_totals('east_to_south') 
+								#bin_totals('from_south') = bin_totals('south_to_east') + bin_totals('south_to_north') + bin_totals('south_to_west') 
+								#bin_totals('from_west') 	= bin_totals('west_to_south') + bin_totals('west_to_east') + bin_totals('west_to_north') 
+
+								#bin_totals('to_north') 	= bin_totals('east_to_north') + bin_totals('south_to_north') + bin_totals('west_to_north') 
+								#bin_totals('to_east') 	= bin_totals('north_to_east') + bin_totals('south_to_east') + bin_totals('west_to_east')
+								#bin_totals('to_south') 	= bin_totals('north_to_south') + bin_totals('east_to_south') + bin_totals('west_to_south')
+								#bin_totals('to_west') 	= bin_totals('north_to_west') + bin_totals('east_to_west') + bin_totals('south_to_west') 
+
+								#bin_totals('on_northern_road')= bin_totals('from_north') + bin_totals('to_north')
+								#bin_totals('on_eastern_road')	= bin_totals('from_east') + bin_totals('to_east')
+								#bin_totals('on_southern_road')= bin_totals('from_south') + bin_totals('to_south')
+								#bin_totals('on_western_road')	= bin_totals('from_west') + bin_totals('to_west')
+
+								#print bin_totals
+
