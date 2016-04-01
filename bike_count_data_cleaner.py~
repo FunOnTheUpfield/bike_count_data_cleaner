@@ -318,7 +318,7 @@ BINTOTALS = [
 		'female_on_northern_road',
 		'female_on_eastern_road',
 		'female_on_southern_road',
-		'female_on_western_road'
+		'female_on_western_road',
 			# Origin of female travellers
 		'female_from_north',
 		'female_from_east',
@@ -333,7 +333,7 @@ BINTOTALS = [
 		'male_on_northern_road',
 		'male_on_eastern_road',
 		'male_on_southern_road',
-		'male_on_western_road'
+		'male_on_western_road',
 			# Origin of male travellers
 		'male_from_north',
 		'male_from_east',
@@ -385,8 +385,8 @@ moveout = open('../../Work/output/bike_movement_observations.txt', 'w')
 moveout.write('count_id | site_id | bin_start | bin_duration | male_north_to_south | male_north_to_east | male_east_to_north | male_east_to_west | male_east_to_south | male_south_to_east | male_south_to_north | male_south_to_west | male_west_to_south | male_west_to_east | male_west_to_north | male_north_to_west | female_north_to_south | female_north_to_east | female_east_to_north | female_east_to_west | female_east_to_south | female_south_to_east |female_south_to_north | female_south_to_west | female_west_to_south | female_west_to_east | female_west_to_north | female_north_to_west')
 moveout.write('\n')
 
-bintotalout = open('../../Work/output/bike_movement_summary1.txt', 'w')
-bintotalout.write('count_id | site_id | bin_start | bin_duration | all_movements_at_intersection | total_male_using_intersection | total_female_using_intersection | all_on_northern_road | all_on_eastern_road | all_on_southern_road | all_on_western_road | male_on_northern_road | male_on_eastern_road | male_on_southern_road | male_on_western_road | female_on_northern_road | female_on_eastern_road | female_on_southern_road | female_on_western_road | all_from_north | all_from_east | all_from_south | all_from_west | male_from_north | male_from_east | male_from_south | male_from_west | female_from_north | female_from_east | female_from_south | female_from_west | all_to_north | all_to_east | all_to_south | all_to_west | male_to_north | male_to_east | male_to_south | male_to_west | female_to_north | female_to_east | female_to_south | female_to_west | all_from_north_to_west | all_from_north_to_south | all_from_north_to_east | all_from_east_to_north | all_from_east_to_west | all_from_east_to_south | all_from_south_to_east | all_from_south_to_north | all_from_south_to_west | all_from_west_to_south | all_from_west_to_east | all_from_west_to_north')
+bintotalout = open('../../Work/output/bike_movement_summary_15min.txt', 'w')
+bintotalout.write('count_id | site_id | bin_start | bin_duration | all_movements_at_intersection | total_male_using_intersection | total_female_using_intersection | all_on_northern_road | all_on_eastern_road | all_on_southern_road | all_on_western_road | all_from_north | all_from_east | all_from_south | all_from_west | all_to_north | all_to_east | all_to_south | all_to_west | female_on_northern_road | female_on_eastern_road | female_on_southern_road | female_on_western_road | female_from_north | female_from_east | female_from_south | female_from_west | female_to_north | female_to_east | female_to_south | female_to_west | male_on_northern_road | male_on_eastern_road | male_on_southern_road | male_on_western_road | male_from_north | male_from_east | male_from_south | male_from_west | male_to_north | male_to_east | male_to_south | male_to_west | all_from_north_to_west | all_from_north_to_south | all_from_north_to_east | all_from_east_to_north | all_from_east_to_west | all_from_east_to_south | all_from_south_to_east | all_from_south_to_north | all_from_south_to_west | all_from_west_to_south | all_from_west_to_east | all_from_west_to_north')
 bintotalout.write('\n')
 
 # Iterate through excel data sources scraping cells for interesting values - then summarise.
@@ -458,8 +458,8 @@ for spreadsheet in excelfiles:
 						print 'Date problem'
 						# TODO: do something ???
 						continue                           
-                              
-					# Collect count attributes stored in preferences
+     
+					# Collect attributes for each count stored in 'spreadsheetdetails.json'
 					for k in currentsheet['count_detail_attributes']:                    
 						countdic[k] = currentsheet['count_detail_attributes'][k]['value']
 					try:
@@ -472,74 +472,80 @@ for spreadsheet in excelfiles:
 					create_output(countdic,  countout,  COUNTCOLUMNS)
 
 
-					# Collect move details
+					# Create dictionaries to store the raw observations and the 'row' summary information.
+					# This is a little duplication but the purest definition of 'clean data' seperates observations from analysis.
+					# The observations file 'bike_movement_observations.txt' is the cleanest data.
+ 
 					movedic = {}
-					movedic['site_id']  = countdic['site_id']
-					movedic['count_id'] = countdic['count_id']
-					movedic['bin_duration'] = countdic['bin_duration'] 
-					seven_to_nine_moves = {}
+					movedic['site_id']  		= countdic['site_id']
+					movedic['count_id'] 		= countdic['count_id']
+					movedic['bin_duration'] 		= countdic['bin_duration'] 
 
+					bin_totals = {}
+					bin_totals['site_id'] 		= countdic['site_id']
+					bin_totals['count_id'] 		= countdic['count_id']
+					bin_totals['bin_duration']	= countdic['bin_duration']
+
+					wholecountobs = {}
 					# Check if all all detailed count information available.
-					if countdic['bin_duration'] == 120 and countdic['gender_split'] == 'Y':
+					# Deal with the older data where there is no breakdown - or both male and female results are stored in "M" columns
+					if countdic['bin_duration'] == 120:
 						print 'Old super tuesday count, go to summary row'						
-						# TODO: Actually do something here
+						# TODO: Handle this use case
+					elif countdic['gender_split'] == 'N':
+						print 'Male and female data combined'
+						# TODO: Handle this use case
+ 
 					else:
 						start 	 = currentsheet['movement_bin_row_range']['seven_am_to_nine_am']['start']
 						finish	 = currentsheet['movement_bin_row_range']['seven_am_to_nine_am']['finish']
 						# Site has detailed '15min bin' bike movement information.						
-						# TODO Fix hardcoded timerange - no good for upfield study.
+						# TODO Fix hardcoded 7am-9am timerange in the preference file. It is no good for upfield study.
 
+						# Collect details from each row and column in the count observations record
 						for k in range(start,finish):         
-								row = k + count_details
-								col = currentsheet['movement_bin_times']['bin_start']['col']
-								movedic['bin_start'] = sheet.cell(row,col).value                                        
-								for i in currentsheet['movement_bin_columns']:
-									col = currentsheet['movement_bin_columns'][i]['col']
-									move = sheet.cell(row,col).value
+							row = k + count_details
+							col = currentsheet['movement_bin_times']['bin_start']['col']
+							movedic['bin_start'] = sheet.cell(row,col).value
+
+							# Collect details from each row of observations in the count                                        
+							for i in currentsheet['movement_bin_columns']:
+								col = currentsheet['movement_bin_columns'][i]['col']
+								move = sheet.cell(row,col).value
+								try:
+									move = int(move)
+								except:
+									continue
+								movedic[i] = move
+
+							for summarise in summary_calculations:
+								fieldsum = 0
+								for i in range(0,len(summary_calculations[summarise])):
+									interestingfield = summary_calculations[summarise][i]
 									try:
-										move = int(move)
+										fieldsum = fieldsum + movedic[interestingfield]
 									except:
 										continue
-									movedic[i] = move
+								bin_totals[summarise] = fieldsum 
 
-									# Convert the bin start time from excel into HH:MM 24hr format
-									try:                    
-										bin_start_time = float(movedic['bin_start']) 
-										preformatted_start_time = xldate_as_tuple(bin_start_time,workbook.datemode)
-										formatted_time = time(*preformatted_start_time[3:5])
-										long_start_time = datetime.combine(formatted_date,formatted_time)                    
-										movedic['bin_start'] = long_start_time
-										seven_to_nine_moves['binstart'] = movedic
-									except:
-										continue
+							# Convert the bin start time from excel into HH:MM 24hr format
+							try:                   
+								bin_start_time			= float(movedic['bin_start']) 
+								preformatted_start_time	= xldate_as_tuple(bin_start_time,workbook.datemode)
+								formatted_time 		= time(*preformatted_start_time[3:5])
+								long_start_time		= datetime.combine(formatted_date,formatted_time)
 
-									# add results to count details file
-									create_output(movedic, moveout, MOVECOLUMNS)
-								
-								# Add 'move' values together to create useful summary information (for 15 min count bins)
-								bin_totals = {}
-								bin_totals['site_id'] 		= countdic['site_id']
-								bin_totals['count_id'] 		= countdic['count_id']
-								bin_totals['bin_start']		= movedic['bin_start']
-								bin_totals['bin_duration']	= movedic['bin_duration']
-
-								for summarise in summary_calculations:
-									fieldsum = 0
-									for i in range(0,len(summary_calculations[summarise])):
-										interestingfield = summary_calculations[summarise][i]
-										try:
-											fieldsum = fieldsum + movedic[interestingfield]
-										except:
-											continue
-									print summarise, fieldsum
-
-									bin_totals[summarise] = fieldsum  
-
-
-								
- 
-
-
-								#print bin_totals
-								create_output(bin_totals,  bintotalout, BINTOTALS)
+								# Use observation start time as an identifier for the row                    
+								movedic['bin_start'] 	= long_start_time
+								bin_totals['bin_start'] 	= long_start_time
+							except:
+								continue
+							
+									
+							# Output the row of observations, and the row summaries to text file
+							create_output(movedic, moveout, MOVECOLUMNS)
+							create_output(bin_totals,  bintotalout, BINTOTALS)
+							
+							wholecountobs[k] = bin_totals
+				
 
