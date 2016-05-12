@@ -502,8 +502,8 @@ for spreadsheet in excelfiles:
 						# TODO Fix hardcoded 7am-9am timerange in the preference file. It is no good for upfield study.
 
 						# Collect details from each row and column in the count observations record
-						for k in range(start,finish):         
-							row = k + count_details
+						for r in range(start,finish):         
+							row = r + count_details
 							col = currentsheet['movement_bin_times']['bin_start']['col']
 							movedic['bin_start'] = sheet.cell(row,col).value
 
@@ -540,10 +540,9 @@ for spreadsheet in excelfiles:
 							except:
 								continue
 							
-									
+
 							# Output the row of observations, and the row summaries to text file
 							create_output(movedic, moveout, MOVECOLUMNS)
 							create_output(bin_totals,  bintotalout, BINTOTALS)
-							
 
 
