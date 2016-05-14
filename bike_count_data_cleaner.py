@@ -29,13 +29,13 @@ outputcols	= json.load(open('outputcolumns.json'))
 def create_output(d,output_file,OUTPUTCOLUMNS):          
      dicvalues = []
      if d != {}:
-          for col in sorted(OUTPUTCOLUMNS):
+		for col in sorted(OUTPUTCOLUMNS):
 			if OUTPUTCOLUMNS[col] not in d:
 				dicvalues.append(EMPTY_VALUE)
 			else:
 				dicvalues.append(str(d[OUTPUTCOLUMNS[col]]))
-          output_file.write("|".join(dicvalues))
-          output_file.write("\n") 
+		output_file.write("|".join(dicvalues))
+		output_file.write("\n") 
 
 
 # Open a text files for output
@@ -44,11 +44,11 @@ siteout.write('site_id | old_id | easting | northing | dist_from_cbd | melway_re
 siteout.write('\n')
 
 countout = open('../../Work/output/count_details.txt', 'w') 
-countout.write(' count_id | site_id | survey_year | survey_date | counting | bin_duration | gender_split')
+countout.write(' count_id | site_id | survey_year | survey_date | counting | bin_duration | gender_split | count_total')
 countout.write('\n')
 
 moveout = open('../../Work/output/bike_movement_observations.txt', 'w')
-moveout.write('count_id | site_id | bin_start | bin_duration | gender | north_to_south | north_to_east | east_to_north | east_to_west | east_to_south | south_to_east | south_to_north | south_to_west | west_to_south | west_to_east | west_to_north | north_to_west')
+moveout.write('count_id | site_id | bin_start | bin_duration | gender | north_to_west | north_to_south | north_to_east | east_to_north | east_to_west | east_to_south | south_to_east | south_to_north | south_to_west | west_to_south | west_to_east | west_to_north')
 moveout.write('\n')
 
 
@@ -93,12 +93,12 @@ for spreadsheet in excelfiles:
 				survey_date_row	= currentsheet['count_details_cells']['survey_date']['row'] + count_details
 				survey_date_col 	= currentsheet['count_details_cells']['survey_date']['col']
 				survey_date_value 	= sheet.cell(survey_date_row,survey_date_col).value
-
+				
 				if survey_date_value != "": 
 					# Not every site in the supertue spreadsheet is counted every year
 					# The supertue spreadsheet contains blank 'count details forms'.
 					# So only attempt to collect movement details if the count date field is populated.
-
+					
 					countdic = {}
 					countdic['site_id'] = str(site_id)
 					count_id = count_id + 1
@@ -107,8 +107,8 @@ for spreadsheet in excelfiles:
 						row = currentsheet['count_details_cells'][k]['row'] + count_details
 						col = currentsheet['count_details_cells'][k]['col']
 						countdic[k] = sheet.cell(row,col).value 
-
-     
+					
+     				
 					# Convert count date from excel format to YYYY-MM-DD
 					try:                    
 						count_date = float(countdic['survey_date'])
@@ -132,8 +132,6 @@ for spreadsheet in excelfiles:
 						continue
 					allcounts[str(count_id)] = countdic
 
-					# add results to count details file
-					create_output(countdic,  countout,  outputcols['COUNTCOLUMNS'])
 
 
 					# Collect the most detailed bike movement information stored in the spreadsheet, individual movements by time bin.
@@ -144,7 +142,7 @@ for spreadsheet in excelfiles:
 					movedic['count_id'] 		= countdic['count_id']
 					movedic['bin_duration'] 		= countdic['bin_duration'] 
 
-					
+					counttotal = 0
 					# Check what information is stored in the supertue spread sheet 
 					# Some year's count information might only have 120 minute summaries (ie no 15 min breakdown)
 					# Other year's count information might not include gender breakdown. 
@@ -152,65 +150,76 @@ for spreadsheet in excelfiles:
 					if countdic['bin_duration'] == 120:
 						print 'Old super tuesday count with no gendersplit, go to summary row'						
 						# TODO: Handle this use case
-
+					
 					elif countdic['gender_split'] == 'N':
 						gender = ('NA',)
 					else:
 						gender = ('male','female')
-
+					
 					# Collect the most detailed information stored in the messy spreadsheet
 					# In super tue worksheet, this information is stored in blocks on the second page of each sheet
 					# The file 'spreadsheetdetails.json' specifies where these blocks begin and end.
-
+					
 					for mf in gender:
+						genderedtotal = 0
 						movedic['gender'] = mf
-
 						# TODO :	Fix the hardcoded 7am-9am timerange in the preference file. 
 						# 		The Upfield Corridor study includes much longer observation ranges.
 						start 	 = currentsheet['movement_bin_row_range']['seven_am_to_nine_am']['start']
 						finish	 = currentsheet['movement_bin_row_range']['seven_am_to_nine_am']['finish']
-
+						
 						# Collect bin start time
 						for r in range(start,finish):         
 							row = r + count_details
 							col = currentsheet['movement_bin_times']['bin_start']['col']
 							movedic['bin_start'] = sheet.cell(row,col).value
-
+							
 							# Convert the bin start time from excel into 'YYYY-MM-DD HH:MM:SS' 24hr format
 							try:                   
 								bin_start_time			= float(movedic['bin_start']) 
 								preformatted_start_time	= xldate_as_tuple(bin_start_time,workbook.datemode)
 								formatted_time 		= time(*preformatted_start_time[3:5])
 								long_start_time		= datetime.combine(formatted_date,formatted_time)
-
+							
 								# Use observation start time as an identifier for the row                    
 								movedic['bin_start'] 	= long_start_time
  							except:
 								continue
-
+							
 							# Collect details from each row of observations in the count
+							rowtotal = 0
+							
 							if movedic['gender'] == 'male': 
 								movement_lookup = 'male_movement_bin_columns'
-
+					
 							elif movedic['gender'] == 'female':
 								movement_lookup = 'female_movement_bin_columns'
-
+							
 							else:
 								# movedic['gender'] == 'NA'
 								movement_lookup == 'male_movement_bin_columns'
 								# When no gendersplit information was recorded, total male and female movements 
 								# were recorded in the male column.
-
+							
 							for i in currentsheet[movement_lookup]:
-									col = currentsheet[movement_lookup][i]['col']
-									move = sheet.cell(row,col).value
-									try:
-										move = int(move)
-									except:
-										continue
-									movedic[i] = move
+								col = currentsheet[movement_lookup][i]['col']
+								move = sheet.cell(row,col).value
+								try:
+									move = int(move)
+									rowtotal = rowtotal + move
+								except:
+									continue
+								movedic[i] = move
+							
 
 							# Output the row of observations, and the row summaries to text file
 							create_output(movedic, moveout, outputcols['MOVECOLUMNS'])
-							
+
+							#Sum scraped values to create count totals
+							genderedtotal = genderedtotal + rowtotal			
+						counttotal = counttotal + genderedtotal
+					countdic['count_total'] = counttotal	
+
+					# add results to count details file
+					create_output(countdic,  countout,  outputcols['COUNTCOLUMNS'])
 
