@@ -44,7 +44,7 @@ siteout.write('site_id | old_id | easting | northing | dist_from_cbd | melway_re
 siteout.write('\n')
 
 countout = open('../../Work/output/count_details.txt', 'w') 
-countout.write(' count_id | site_id | survey_year | survey_date | counting | bin_duration | gender_split | count_total')
+countout.write(' count_id | site_id | survey_year | survey_date | counting | bin_duration | gender_split | male_total | female_total | count_total')
 countout.write('\n')
 
 moveout = open('../../Work/output/bike_movement_observations.txt', 'w')
@@ -189,17 +189,13 @@ for spreadsheet in excelfiles:
 							# Collect details from each row of observations in the count
 							rowtotal = 0
 							
-							if movedic['gender'] == 'male': 
-								movement_lookup = 'male_movement_bin_columns'
-					
-							elif movedic['gender'] == 'female':
-								movement_lookup = 'female_movement_bin_columns'
-							
-							else:
-								# movedic['gender'] == 'NA'
-								movement_lookup == 'male_movement_bin_columns'
+							if 	movedic['gender'] != 'female': 
+								movement_lookup = 'male_movement_bin_columns'								
 								# When no gendersplit information was recorded, total male and female movements 
 								# were recorded in the male column.
+					
+							else:
+								movement_lookup = 'female_movement_bin_columns'
 							
 							for i in currentsheet[movement_lookup]:
 								col = currentsheet[movement_lookup][i]['col']
@@ -209,14 +205,20 @@ for spreadsheet in excelfiles:
 									rowtotal = rowtotal + move
 								except:
 									continue
+
 								movedic[i] = move
 							
-
 							# Output the row of observations, and the row summaries to text file
 							create_output(movedic, moveout, outputcols['MOVECOLUMNS'])
 
 							#Sum scraped values to create count totals
 							genderedtotal = genderedtotal + rowtotal			
+						if mf == 'male':
+							countdic['male_total'] = genderedtotal
+						elif mf == 'female':
+							countdic['female_total'] = genderedtotal
+						else:
+							print movedic
 						counttotal = counttotal + genderedtotal
 					countdic['count_total'] = counttotal	
 

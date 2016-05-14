@@ -22,7 +22,9 @@
 			"05"	:	"counting",
 			"06"	:	"bin_duration",
 			"07"	:	"gender_split",
-			"08"	:	"count_total"
+			"08"	:	"male_total",
+			"09"	:	"female_total",
+			"10"	:	"count_total"
 		},
 
 	"MOVECOLUMNS"	:	
