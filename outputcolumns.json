@@ -1,0 +1,47 @@
+{
+	"SITECOLUMNS"	: 
+		{
+			"00"	:	"site_id", 
+			"01"	:	"old_id",
+			"02"	:	"easting",
+			"03"	:	"northing",
+			"04"	:	"dist_from_cbd", 
+			"05"	:	"melway_ref", 
+			"06"	:	"site_description",
+			"07"	:	"suburb", 
+			"08"	:	"primary_road", 
+			"09"	:	"secondary_road"
+		},
+
+	"COUNTCOLUMNS"	:
+		{
+			"01"	:	"count_id",
+			"02"	:	"site_id",
+			"03"	:	"survey_year",
+			"04"	:	"survey_date",
+			"05"	:	"counting",
+			"06"	:	"bin_duration",
+			"07"	:	"gender_split"
+		},
+
+	"MOVECOLUMNS"	:	
+		{          
+			"00"	:	"count_id",
+          	"01"	:	"site_id",
+          	"02"	:	"bin_start",
+			"03"	:	"bin_duration",
+			"04"	:	"gender",
+          	"05"	:	"north_to_south",
+          	"06"	:	"north_to_east",
+          	"07"	:	"east_to_north",
+          	"08"	:	"east_to_west",
+          	"09"	:	"east_to_south",
+          	"10"	:	"south_to_east",
+          	"11"	:	"south_to_north",
+          	"12"	:	"south_to_west",
+          	"13"	:	"west_to_south",
+          	"14"	:	"west_to_east",
+          	"15"	:	"west_to_north",
+          	"16"	:	"north_to_west"
+          }
+}
