@@ -77,7 +77,39 @@
 					"female_west_to_east"  : { "col" : 23 },
 					"male_west_to_north"   : { "col" : 24 },
 					"female_west_to_north" : { "col" : 25 }
+				},
+
+               "male_movement_bin_columns":
+                    {    "north_to_west"   : { "col" :  2 },
+					"north_to_south"  : { "col" :  4 },
+					"north_to_east"   : { "col" :  6 },
+					"east_to_north"   : { "col" :  8 },
+					"east_to_west"    : { "col" : 10 },
+					"east_to_south"   : { "col" : 12 },
+					"south_to_east"   : { "col" : 14 },
+					"south_to_north"  : { "col" : 16 },
+					"south_to_west"   : { "col" : 18 },
+					"west_to_south"   : { "col" : 20 },
+					"west_to_east"    : { "col" : 22 },
+					"west_to_north"   : { "col" : 24 }
+				},
+
+               "female_movement_bin_columns":
+                    {	"north_to_west" : { "col" :  3 },
+					"north_to_south": { "col" :  5 },
+					"north_to_east" : { "col" :  7 },
+					"east_to_north" : { "col" :  9 },
+					"east_to_west"  : { "col" : 11 },
+					"east_to_south" : { "col" : 13 },
+					"south_to_east" : { "col" : 15 },
+					"south_to_north": { "col" : 17 },
+					"south_to_west" : { "col" : 19 },
+					"west_to_south" : { "col" : 21 },
+					"west_to_east"  : { "col" : 23 },
+					"west_to_north" : { "col" : 25 }
 				}
+
+
 		}
 
 }
