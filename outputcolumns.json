@@ -47,5 +47,40 @@
           	"15"	:	"west_to_east",
           	"16"	:	"west_to_north"
 
-          }
+          },
+	"COUNTSUMMARYOUT"	:
+		{
+			"00"	:	"count_id",
+			"01"	:	"site_id",
+			"02"	:	"survey_date",
+			"03"	:	"counting",
+			"04" :	"count_total",
+			"05"	:	"from_north",
+			"06"	:	"from_east",
+			"07"	:	"from_south",
+			"08"	:	"from_west",
+			"09"	:	"to_north",
+			"10"	:	"to_east",
+			"11"	:	"to_south",
+			"12"	:	"to_west",
+			"13"	:	"male_total",
+			"14"	:	"male_from_north",
+			"15"	:	"male_from_east",
+			"16"	:	"male_from_south",
+			"17"	:	"male_from_west",
+			"18"	:	"male_to_north",
+			"19"	:	"male_to_east",
+			"20"	:	"male_to_south",
+			"21"	:	"male_to_west",
+			"22"	:	"female_total",
+			"23"	:	"female_from_north",
+			"24"	:	"female_from_east",
+			"25"	:	"female_from_south",
+			"26"	:	"female_from_west",
+			"27"	:	"female_to_north",
+			"28"	:	"female_to_east",
+			"29"	:	"female_to_south",
+			"30"	:	"female_to_west"
+
+		}
 }
